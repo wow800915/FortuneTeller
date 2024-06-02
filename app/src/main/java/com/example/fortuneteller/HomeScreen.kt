@@ -30,6 +30,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -49,22 +50,21 @@ val imageDescriptions = arrayOf(
 )
 
 @Composable
-fun BakingScreen(
-    bakingViewModel: BakingViewModel = viewModel()
+fun HomeScreen(
+    homeViewModel: HomeViewModel = viewModel()
 ) {
     val selectedImage = remember { mutableIntStateOf(0) }
-    val placeholderPrompt = stringResource(R.string.prompt_placeholder)
     val placeholderResult = stringResource(R.string.results_placeholder)
-    var prompt by rememberSaveable { mutableStateOf(placeholderPrompt) }
     var result by rememberSaveable { mutableStateOf(placeholderResult) }
-    val uiState by bakingViewModel.uiState.collectAsState()
+    val uiState by homeViewModel.uiState.collectAsState()
     val context = LocalContext.current
+    val prompt = stringResource(R.string.prompt) // Add this line to retrieve the string resource
 
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
         Text(
-            text = stringResource(R.string.baking_title),
+            text = stringResource(R.string.home_title),
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(16.dp)
         )
@@ -94,25 +94,15 @@ fun BakingScreen(
         Row(
             modifier = Modifier.padding(all = 16.dp)
         ) {
-            TextField(
-                value = prompt,
-                label = { Text(stringResource(R.string.label_prompt)) },
-                onValueChange = { prompt = it },
-                modifier = Modifier
-                    .weight(0.8f)
-                    .padding(end = 16.dp)
-                    .align(Alignment.CenterVertically)
-            )
-
             Button(
                 onClick = {
                     val bitmap = BitmapFactory.decodeResource(
                         context.resources,
                         images[selectedImage.intValue]
                     )
-                    bakingViewModel.sendPrompt(bitmap, prompt)
+                    homeViewModel.sendPrompt(bitmap, prompt)
                 },
-                enabled = prompt.isNotEmpty(),
+//                enabled = prompt.isEmpty(),//這邊判斷照片是不是empty
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
             ) {

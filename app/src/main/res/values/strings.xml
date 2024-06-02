@@ -1,11 +1,11 @@
 <resources>
     <string name="app_name">FortuneTeller</string>
-    <string name="action_go">Go</string>
-    <string name="baking_title">Baking with Gemini</string>
+    <string name="action_go">開始算命</string>
+    <string name="home_title">請選擇照片</string>
     <string name="label_prompt">Prompt</string>
-    <string name="prompt_placeholder">Provide a recipe for the baked goods in the image</string>
+    <string name="prompt">中文回答,先幫我判斷此照片是不是人,如果是請回『不是人,請上傳人類照片』,如果是人類的話,幫我算此人命相,並用幽默誇張的方法回覆,如果不知道,怎麼算就亂掰即可</string>
     <string name="image1_description">Blueberry cookies</string>
     <string name="image2_description">Homemade bread</string>
     <string name="image3_description">Red-velvet cupcake</string>
-    <string name="results_placeholder">(Results will appear here)</string>
+    <string name="results_placeholder"> </string>
 </resources>
