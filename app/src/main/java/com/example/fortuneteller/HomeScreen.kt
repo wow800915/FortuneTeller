@@ -16,27 +16,22 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -47,14 +42,15 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun HomeScreen(
-    selectedImage: MutableState<Bitmap?>,
     homeViewModel: HomeViewModel = viewModel()
 ) {
     val placeholderResult = stringResource(R.string.results_placeholder)
     var result by rememberSaveable { mutableStateOf(placeholderResult) }
     val uiState by homeViewModel.uiState.collectAsState()
     val context = LocalContext.current
-    val prompt = stringResource(R.string.prompt) // Add this line to retrieve the string resource
+    val prompt = stringResource(R.string.prompt)
+
+    val selectedImage = remember { mutableStateOf<Bitmap?>(null) }
 
     // Image picker launcher
     val launcher = rememberLauncherForActivityResult(
@@ -75,7 +71,6 @@ fun HomeScreen(
             modifier = Modifier.padding(16.dp)
         )
 
-        // 位置A: 加號圖案並且可以點選選照片
         if (selectedImage.value == null) {
             Row(
                 horizontalArrangement = Arrangement.Center,
@@ -97,18 +92,14 @@ fun HomeScreen(
                         .requiredSize(50.dp)
                         .border(BorderStroke(1.dp, MaterialTheme.colorScheme.primary))
                         .clickable {
-                            // Open image picker here
                             launcher.launch("image/*")
                         }
                         .padding(16.dp)
                 )
             }
-
         }
 
-        // Display the selected image if not null
         selectedImage.value?.let {
-            //位置D
             Image(
                 bitmap = it.asImageBitmap(),
                 contentDescription = stringResource(R.string.home_title),
@@ -116,14 +107,12 @@ fun HomeScreen(
                     .padding(16.dp)
                     .size(160.dp)
                     .border(BorderStroke(1.dp, MaterialTheme.colorScheme.primary))
-                    .align(Alignment.CenterHorizontally) // Center horizontally
+                    .align(Alignment.CenterHorizontally)
                     .clickable {
-                        // Open image picker here
                         launcher.launch("image/*")
                     }
             )
         }
-
 
         Row(
             modifier = Modifier.padding(all = 16.dp)
@@ -132,9 +121,8 @@ fun HomeScreen(
                 onClick = {
                     homeViewModel.sendPrompt(selectedImage.value!!, prompt)
                 },
-                enabled = (selectedImage.value != null),//位置C 幫我判斷照片是不是null或是empty
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
+                enabled = selectedImage.value != null,
+                modifier = Modifier.align(Alignment.CenterVertically)
             ) {
                 Text(text = stringResource(R.string.action_go))
             }

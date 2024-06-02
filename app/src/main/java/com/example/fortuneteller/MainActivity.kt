@@ -1,7 +1,5 @@
 package com.example.fortuneteller
 
-import android.app.Activity
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
@@ -15,7 +13,6 @@ import androidx.compose.ui.Modifier
 import com.example.fortuneteller.ui.theme.FortuneTellerTheme
 
 class MainActivity : ComponentActivity() {
-    private val selectedImage = mutableStateOf<Bitmap?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,23 +23,9 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                    HomeScreen(selectedImage)
+                    HomeScreen()
                 }
             }
         }
     }
-
-    // Add this function to handle activity result
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == IMAGE_PICK_CODE && resultCode == Activity.RESULT_OK) {
-            data?.data?.let { uri ->
-                val inputStream = contentResolver.openInputStream(uri)
-                selectedImage.value = BitmapFactory.decodeStream(inputStream)
-            }
-        }
-    }
 }
-
-// Add this constant for image pick code
-const val IMAGE_PICK_CODE = 1000
