@@ -46,6 +46,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import java.io.File
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 
 @Composable
 fun HomeScreen(
@@ -58,6 +60,7 @@ fun HomeScreen(
     val prompt = stringResource(R.string.prompt)
 
     val selectedImage = remember { mutableStateOf<Bitmap?>(null) }
+    val showDialog = rememberSaveable { mutableStateOf(false) }
 
     // Image picker launcher for selecting image from gallery
     val imagePickerlauncher = rememberLauncherForActivityResult(
@@ -133,39 +136,10 @@ fun HomeScreen(
                         .requiredSize(50.dp)
                         .border(BorderStroke(1.dp, MaterialTheme.colorScheme.primary))
                         .clickable {
-                            imagePickerlauncher.launch("image/*")
+                            showDialog.value = true
                         }
                         .padding(16.dp)
                 )
-            }
-
-            // Button to take a photo using the camera
-            Button(
-                onClick = {
-                    // Check if camera permission is granted
-                    when {
-                        ContextCompat.checkSelfPermission(
-                            context,
-                            Manifest.permission.CAMERA
-                        ) == PackageManager.PERMISSION_GRANTED -> {
-                            // Permission is granted, launch camera
-                            photoUri.value = FileProvider.getUriForFile(
-                                context,
-                                "${context.packageName}.fileprovider",
-                                photoFile
-                            )
-                            cameraLauncher.launch(photoUri.value)
-                        }
-
-                        else -> {
-                            // Request camera permission
-                            permissionLauncher.launch(Manifest.permission.CAMERA)
-                        }
-                    }
-                },
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            ) {
-                Text(text = stringResource(R.string.add_photo))
             }
         }
 
@@ -179,7 +153,7 @@ fun HomeScreen(
                     .border(BorderStroke(1.dp, MaterialTheme.colorScheme.primary))
                     .align(Alignment.CenterHorizontally)
                     .clickable {
-                        imagePickerlauncher.launch("image/*")
+                        showDialog.value = true
                     }
             )
         }
@@ -226,5 +200,61 @@ fun HomeScreen(
                     .verticalScroll(scrollState)
             )
         }
+    }
+
+    if (showDialog.value) {
+        AlertDialog(
+            onDismissRequest = { showDialog.value = false },
+            title = {
+                Text(text = stringResource(R.string.add_photo))
+            },
+            text = {
+                Column {
+                    TextButton(
+                        onClick = {
+                            showDialog.value = false
+                            // Check if camera permission is granted
+                            when {
+                                ContextCompat.checkSelfPermission(
+                                    context,
+                                    Manifest.permission.CAMERA
+                                ) == PackageManager.PERMISSION_GRANTED -> {
+                                    // Permission is granted, launch camera
+                                    photoUri.value = FileProvider.getUriForFile(
+                                        context,
+                                        "${context.packageName}.fileprovider",
+                                        photoFile
+                                    )
+                                    cameraLauncher.launch(photoUri.value)
+                                }
+
+                                else -> {
+                                    // Request camera permission
+                                    permissionLauncher.launch(Manifest.permission.CAMERA)
+                                }
+                            }
+                        }
+                    ) {
+                        Text(text = stringResource(R.string.take_photo))
+                    }
+
+                    TextButton(
+                        onClick = {
+                            showDialog.value = false
+                            imagePickerlauncher.launch("image/*")
+                        }
+                    ) {
+                        Text(text = stringResource(R.string.pick_image))
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = { showDialog.value = false }
+                ) {
+                    Text(text = stringResource(R.string.cancel))
+                }
+            }
+        )
     }
 }
