@@ -1,16 +1,21 @@
 package com.example.fortuneteller
 
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
@@ -21,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -31,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -38,27 +45,26 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 
-val images = arrayOf(
-    R.drawable.baked_goods_1,
-    R.drawable.baked_goods_2,
-    R.drawable.baked_goods_3
-)
-val imageDescriptions = arrayOf(
-    R.string.image1_description,
-    R.string.image2_description,
-    R.string.image3_description
-)
-
 @Composable
 fun HomeScreen(
+    selectedImage: MutableState<Bitmap?>,
     homeViewModel: HomeViewModel = viewModel()
 ) {
-    val selectedImage = remember { mutableIntStateOf(0) }
     val placeholderResult = stringResource(R.string.results_placeholder)
     var result by rememberSaveable { mutableStateOf(placeholderResult) }
     val uiState by homeViewModel.uiState.collectAsState()
     val context = LocalContext.current
     val prompt = stringResource(R.string.prompt) // Add this line to retrieve the string resource
+
+    // Image picker launcher
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            val inputStream = context.contentResolver.openInputStream(it)
+            selectedImage.value = BitmapFactory.decodeStream(inputStream)
+        }
+    }
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -69,40 +75,64 @@ fun HomeScreen(
             modifier = Modifier.padding(16.dp)
         )
 
-        LazyRow(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            itemsIndexed(images) { index, image ->
-                var imageModifier = Modifier
-                    .padding(start = 8.dp, end = 8.dp)
-                    .requiredSize(200.dp)
-                    .clickable {
-                        selectedImage.intValue = index
-                    }
-                if (index == selectedImage.intValue) {
-                    imageModifier =
-                        imageModifier.border(BorderStroke(4.dp, MaterialTheme.colorScheme.primary))
-                }
+        // 位置A: 加號圖案並且可以點選選照片
+        if (selectedImage.value == null) {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.add_photo),
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+
                 Image(
-                    painter = painterResource(image),
-                    contentDescription = stringResource(imageDescriptions[index]),
-                    modifier = imageModifier
+                    painter = painterResource(id = android.R.drawable.ic_input_add),
+                    contentDescription = stringResource(R.string.home_title),
+                    modifier = Modifier
+                        .requiredSize(50.dp)
+                        .border(BorderStroke(1.dp, MaterialTheme.colorScheme.primary))
+                        .clickable {
+                            // Open image picker here
+                            launcher.launch("image/*")
+                        }
+                        .padding(16.dp)
                 )
             }
+
         }
+
+        // Display the selected image if not null
+        selectedImage.value?.let {
+            //位置D
+            Image(
+                bitmap = it.asImageBitmap(),
+                contentDescription = stringResource(R.string.home_title),
+                modifier = Modifier
+                    .padding(16.dp)
+                    .size(160.dp)
+                    .border(BorderStroke(1.dp, MaterialTheme.colorScheme.primary))
+                    .align(Alignment.CenterHorizontally) // Center horizontally
+                    .clickable {
+                        // Open image picker here
+                        launcher.launch("image/*")
+                    }
+            )
+        }
+
 
         Row(
             modifier = Modifier.padding(all = 16.dp)
         ) {
             Button(
                 onClick = {
-                    val bitmap = BitmapFactory.decodeResource(
-                        context.resources,
-                        images[selectedImage.intValue]
-                    )
-                    homeViewModel.sendPrompt(bitmap, prompt)
+                    homeViewModel.sendPrompt(selectedImage.value!!, prompt)
                 },
-//                enabled = prompt.isEmpty(),//這邊判斷照片是不是empty
+                enabled = (selectedImage.value != null),//位置C 幫我判斷照片是不是null或是empty
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
             ) {
