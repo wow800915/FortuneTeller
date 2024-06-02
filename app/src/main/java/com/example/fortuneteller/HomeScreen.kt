@@ -1,7 +1,11 @@
 package com.example.fortuneteller
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
+import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -38,7 +42,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import java.io.File
 
 @Composable
 fun HomeScreen(
@@ -52,12 +59,47 @@ fun HomeScreen(
 
     val selectedImage = remember { mutableStateOf<Bitmap?>(null) }
 
+    // Image picker launcher for selecting image from gallery
     val imagePickerlauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
         uri?.let {
             val inputStream = context.contentResolver.openInputStream(it)
             selectedImage.value = BitmapFactory.decodeStream(inputStream)
+        }
+    }
+
+    // Uri and File for capturing image with camera
+    val photoUri = remember { mutableStateOf<Uri?>(null) }
+    val photoFile = remember { File(context.cacheDir, "photo.jpg") }
+
+    // Camera launcher for taking a picture
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            photoUri.value?.let { uri ->
+                val bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+                selectedImage.value = bitmap
+            }
+        }
+    }
+
+    // Permission request launcher
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            // Permission granted, launch camera
+            photoUri.value = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                photoFile
+            )
+            cameraLauncher.launch(photoUri.value)
+        } else {
+            // Permission denied
+            Toast.makeText(context, "Camera permission denied", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -96,6 +138,35 @@ fun HomeScreen(
                         .padding(16.dp)
                 )
             }
+
+            // Button to take a photo using the camera
+            Button(
+                onClick = {
+                    // Check if camera permission is granted
+                    when {
+                        ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.CAMERA
+                        ) == PackageManager.PERMISSION_GRANTED -> {
+                            // Permission is granted, launch camera
+                            photoUri.value = FileProvider.getUriForFile(
+                                context,
+                                "${context.packageName}.fileprovider",
+                                photoFile
+                            )
+                            cameraLauncher.launch(photoUri.value)
+                        }
+
+                        else -> {
+                            // Request camera permission
+                            permissionLauncher.launch(Manifest.permission.CAMERA)
+                        }
+                    }
+                },
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                Text(text = stringResource(R.string.add_photo))
+            }
         }
 
         selectedImage.value?.let {
@@ -131,6 +202,7 @@ fun HomeScreen(
             }
         }
 
+        // Display loading indicator or result based on UI state
         if (uiState is UiState.Loading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
         } else {
