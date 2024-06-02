@@ -44,4 +44,8 @@ class HomeViewModel : ViewModel() {
             }
         }
     }
+
+    fun makeTextEmpty() {
+        _uiState.value = UiState.Success("")
+    }
 }

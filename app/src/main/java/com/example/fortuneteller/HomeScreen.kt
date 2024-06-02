@@ -61,50 +61,9 @@ fun HomeScreen(
 
     val selectedImage = remember { mutableStateOf<Bitmap?>(null) }
     val showDialog = rememberSaveable { mutableStateOf(false) }
-
-    // Image picker launcher for selecting image from gallery
-    val imagePickerlauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri ->
-        uri?.let {
-            val inputStream = context.contentResolver.openInputStream(it)
-            selectedImage.value = BitmapFactory.decodeStream(inputStream)
-        }
-    }
-
     // Uri and File for capturing image with camera
     val photoUri = remember { mutableStateOf<Uri?>(null) }
     val photoFile = remember { File(context.cacheDir, "photo.jpg") }
-
-    // Camera launcher for taking a picture
-    val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicture()
-    ) { success ->
-        if (success) {
-            photoUri.value?.let { uri ->
-                val bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
-                selectedImage.value = bitmap
-            }
-        }
-    }
-
-    // Permission request launcher
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
-            // Permission granted, launch camera
-            photoUri.value = FileProvider.getUriForFile(
-                context,
-                "${context.packageName}.fileprovider",
-                photoFile
-            )
-            cameraLauncher.launch(photoUri.value)
-        } else {
-            // Permission denied
-            Toast.makeText(context, "Camera permission denied", Toast.LENGTH_SHORT).show()
-        }
-    }
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -199,6 +158,48 @@ fun HomeScreen(
                     .fillMaxSize()
                     .verticalScroll(scrollState)
             )
+        }
+    }
+
+    // Image picker launcher for selecting image from gallery
+    val imagePickerlauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            val inputStream = context.contentResolver.openInputStream(it)
+            selectedImage.value = BitmapFactory.decodeStream(inputStream)
+            homeViewModel.makeTextEmpty()
+        }
+    }
+
+    // Camera launcher for taking a picture
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            photoUri.value?.let { uri ->
+                val bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+                selectedImage.value = bitmap
+                homeViewModel.makeTextEmpty()
+            }
+        }
+    }
+
+    // Permission request launcher
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            // Permission granted, launch camera
+            photoUri.value = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                photoFile
+            )
+            cameraLauncher.launch(photoUri.value)
+        } else {
+            // Permission denied
+            Toast.makeText(context, "Camera permission denied", Toast.LENGTH_SHORT).show()
         }
     }
 
