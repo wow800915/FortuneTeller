@@ -1,12 +1,14 @@
 <resources>
     <string name="app_name">FortuneTeller</string>
-    <string name="action_go">開始算命</string>
-    <string name="action_name">開始改名</string>
+    <string name="action_go">占卜測算</string>
+    <string name="action_name">改名易姓</string>
+    <string name="action_life">生平傳記</string>
     <string name="home_title">威佑大師測算</string>
     <string name="add_photo">請新增照片</string>
     <string name="label_prompt">Prompt</string>
     <string name="prompt">中文回答,先幫我判斷此照片是不是人,如果是請回『不是人,請重新點選照片,上傳人類照片』,如果是人類的話,幫我算此人命相,並用幽默誇張的方法回覆,如果不知道怎麼算就亂掰即可</string>
-    <string name="prompt_name">中文回答,先幫我判斷此照片是不是人,如果是請回『不是人,請重新點選照片,上傳人類照片』,如果是人類的話,幫我幫這個圖片的人取一個中文綽號,並用幽默誇張的方法回覆,如果不知道怎麼取就亂掰即可</string>
+    <string name="prompt_name">Based on this person\'s appearance, please give this person a name, including a Chinese name, an English name, and a nickname. Also, explain the reasons for the chosen names in detail.Use traditional Chinese characters for response.Tell me what career this person is engaged in.And tell me a wise saying of this person.</string>
+    <string name="prompt_life">Based on this person\'s appearance, please give this person a life story.Use traditional Chinese characters for response.Tell me what career this person is engaged in.And tell me a wise saying of this person.</string>
     <string name="image1_description">Blueberry cookies</string>
     <string name="image2_description">Homemade bread</string>
     <string name="image3_description">Red-velvet cupcake</string>
