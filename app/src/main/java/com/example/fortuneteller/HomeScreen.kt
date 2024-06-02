@@ -109,7 +109,6 @@ fun HomeScreen(
                 modifier = Modifier
                     .padding(16.dp)
                     .size(160.dp)
-                    .border(BorderStroke(1.dp, MaterialTheme.colorScheme.primary))
                     .align(Alignment.CenterHorizontally)
                     .clickable {
                         showDialog.value = true
