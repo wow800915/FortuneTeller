@@ -58,6 +58,7 @@ fun HomeScreen(
     val uiState by homeViewModel.uiState.collectAsState()
     val context = LocalContext.current
     val prompt = stringResource(R.string.prompt)
+    val promptName = stringResource(R.string.prompt_name)
 
     val selectedImage = remember { mutableStateOf<Bitmap?>(null) }
     val showDialog = rememberSaveable { mutableStateOf(false) }
@@ -128,9 +129,25 @@ fun HomeScreen(
                     }
                 },
                 enabled = selectedImage.value != null,
-                modifier = Modifier.align(Alignment.CenterVertically)
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .padding(end = 8.dp) // 增加右側距離                
             ) {
                 Text(text = stringResource(R.string.action_go))
+            }
+
+            Button(
+                onClick = {
+                    if (isNetworkAvailable(context)) {
+                        homeViewModel.sendPrompt(selectedImage.value!!, promptName)
+                    } else {
+                        Toast.makeText(context, "No network connection", Toast.LENGTH_SHORT).show()
+                    }
+                },
+                enabled = selectedImage.value != null,
+                modifier = Modifier.align(Alignment.CenterVertically)
+            ) {
+                Text(text = stringResource(R.string.action_name))
             }
         }
 
