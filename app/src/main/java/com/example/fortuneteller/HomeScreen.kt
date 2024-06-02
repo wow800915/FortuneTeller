@@ -24,7 +24,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,8 +52,7 @@ fun HomeScreen(
 
     val selectedImage = remember { mutableStateOf<Bitmap?>(null) }
 
-    // Image picker launcher
-    val launcher = rememberLauncherForActivityResult(
+    val imagePickerlauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
         uri?.let {
@@ -93,7 +91,7 @@ fun HomeScreen(
                         .requiredSize(50.dp)
                         .border(BorderStroke(1.dp, MaterialTheme.colorScheme.primary))
                         .clickable {
-                            launcher.launch("image/*")
+                            imagePickerlauncher.launch("image/*")
                         }
                         .padding(16.dp)
                 )
@@ -110,7 +108,7 @@ fun HomeScreen(
                     .border(BorderStroke(1.dp, MaterialTheme.colorScheme.primary))
                     .align(Alignment.CenterHorizontally)
                     .clickable {
-                        launcher.launch("image/*")
+                        imagePickerlauncher.launch("image/*")
                     }
             )
         }
