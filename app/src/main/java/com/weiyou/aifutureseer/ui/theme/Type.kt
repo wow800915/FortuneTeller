@@ -1,4 +1,4 @@
-package com.example.fortuneteller.ui.theme
+package com.weiyou.aifutureseer.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

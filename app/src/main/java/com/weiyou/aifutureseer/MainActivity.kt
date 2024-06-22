@@ -1,4 +1,4 @@
-package com.example.fortuneteller
+package com.weiyou.aifutureseer
 
 import android.content.Context
 import android.net.ConnectivityManager
@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.example.fortuneteller.ui.theme.FortuneTellerTheme
+import com.weiyou.aifutureseer.ui.theme.FortuneTellerTheme
 
 class MainActivity : ComponentActivity() {
 

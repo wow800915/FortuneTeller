@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.fortuneteller"
+    namespace = "com.weiyou.aifutureseer"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.fortuneteller"
+        applicationId = "com.weiyou.aifutureseer"
         minSdk = 28
         targetSdk = 34
         versionCode = 1

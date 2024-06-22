@@ -1,4 +1,4 @@
-package com.example.fortuneteller
+package com.weiyou.aifutureseer
 
 /**
  * A sealed hierarchy describing the state of the text generation.

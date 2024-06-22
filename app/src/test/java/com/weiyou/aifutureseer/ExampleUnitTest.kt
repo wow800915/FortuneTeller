@@ -1,4 +1,4 @@
-package com.example.fortuneteller
+package com.weiyou.aifutureseer
 
 import org.junit.Test
 

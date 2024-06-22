@@ -1,4 +1,4 @@
-package com.example.fortuneteller
+package com.weiyou.aifutureseer
 
 import android.Manifest
 import android.content.pm.PackageManager
